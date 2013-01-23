@@ -353,13 +353,13 @@ class Imgbuilder {
 	 * 					index 'content', array, array of strings
 	 * @return	string	image url
 	 */
-	function buildImage($sKey, $aVariables, $bolReturn=0, $bolSave=1) {
+	function buildImage($sKey, array $aVariables, $bolReturn=0, $bolSave=1) {
 		global $system_data;
 
 		$this->arrInfo['set'] = $sKey;
 		$this->arrInfo['content'] = array();
 		$intIndex = 1;
-		foreach ((array)$arrInfo as $intKey => $strValue) {
+		foreach ($aVariables as $intKey => $strValue) {
 			$this->arrInfo['content'][$intIndex] = strip_tags($strValue);
 			$intIndex++;
 		}
@@ -375,16 +375,16 @@ class Imgbuilder {
 		 * builds filename with md5 hash for caching
 		 * - contains last changes of the set and changes of the content
 		 */ 
-		$sMD5Text = $aSet['date'];
+		$sMD5Text = json_encode($aSet);
 		foreach ((array)$this->arrInfo['content'] as $intKey => $strValue) {
-			if(strpos($strValue, "/media") === 0) {	
-				$strValue = str_replace("/media/", "", $strValue);
-			}
+
 			if(@is_file($this->strImagePath.$strValue)) {
 				$sMD5Text .= @filemtime($this->strImagePath.$strValue);
 			}
-			$sMD5Text .= html_entity_decode($strValue);
-			$aUser[$intKey] = stripslashes(html_entity_decode($strValue));
+			$sMD5Text .= $strValue;
+			
+			$aUser[$intKey] = stripslashes(html_entity_decode($strValue, ENT_COMPAT | ENT_HTML401, 'UTF-8'));
+
 		}
 
 		$sFileName = md5($sMD5Text);
