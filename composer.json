@@ -1,0 +1,17 @@
+{
+	"name": "mark9000/imgbuilder",
+	"version": "0.1.0",
+	"homepage": "https://github.com/mark9000/imgbuilder",
+	"type": "library",
+	"description": "PHP-Class for building images with text, masks and other images.",
+	"keywords": ["image","gd"],
+	"license": "ASL 2.0",
+	"require": {
+		"php": ">=5.2.0"
+	},
+	"autoload": {
+		"classmap": [
+		"Imgbuilder.php"
+		]
+	}
+}
