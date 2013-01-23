@@ -398,7 +398,6 @@ class Imgbuilder {
 
 		// if the file not exists, build new one
 		if (!file_exists($strTargetPath)) {
-			$aSet['data'] = unserialize($aSet['data']);			
 
 			// loops every element
 			foreach ((array)$aSet['data'] as $dkey => $dval) {
