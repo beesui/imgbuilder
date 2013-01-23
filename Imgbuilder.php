@@ -18,7 +18,6 @@
   limitations under the License.
 
  */
-
 class Imgbuilder {
 
 	var $arrInfo;
