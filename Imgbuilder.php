@@ -46,13 +46,17 @@ class Imgbuilder {
 		$this->strFontPath = $sFontPath;
 		$this->strImagePath = $sImagePath;
 		$this->strTargetPath = $sTargetPath;
-		
+
 		$this->strTargetUrl = $sTargetUrl;
 		$this->intScaleFactor = 4;
 		$this->intTempSize = 155;
 
 	}
 
+	public function getTargetPath() {
+		return $this->strTargetPath;
+	}
+	
 	/**
 	 * Add a set to this instance
 	 * 
@@ -287,12 +291,12 @@ class Imgbuilder {
 					$iResizeWidth = $arrImg['w'];
 					$iResizeHeight = $arrImg['w'] / $floRatioOriginal;
 				}
-		
+
 			/*
 			 * minimum dimensions
 			 */
 			} else {
-		
+
 				if ($floRatio > $floRatioOriginal) {
 					$iResizeWidth = $arrImg['w'];
 					$iResizeHeight = $arrImg['w'] / $iCopyWidth * $iCopyHeight;
@@ -300,21 +304,21 @@ class Imgbuilder {
 					$iResizeWidth = $arrImg['h'] / $iCopyHeight * $iCopyWidth;
 					$iResizeHeight = $arrImg['h'];
 				}
-				
+
 			}
-	 
+
 			$iResizeHeight = round($iResizeHeight, 0);
 			$iResizeWidth = round($iResizeWidth, 0);
-		
+
 		}
-	
+
 		$arrDimensions = array(
-								"w"=>$iResizeWidth, 
-								"h"=>$iResizeHeight
-							);
-		
+			"w"=>$iResizeWidth, 
+			"h"=>$iResizeHeight
+		);
+
 		return $arrDimensions;
-		
+
 	}
 	
 	private function getImageObject($strFile) {
@@ -354,7 +358,6 @@ class Imgbuilder {
 	 * @return	string	image url
 	 */
 	function buildImage($sKey, array $aVariables, $bolReturn=0, $bolSave=1) {
-		global $system_data;
 
 		$this->arrInfo['set'] = $sKey;
 		$this->arrInfo['content'] = array();
@@ -376,6 +379,7 @@ class Imgbuilder {
 		 * - contains last changes of the set and changes of the content
 		 */ 
 		$sMD5Text = json_encode($aSet);
+		$aUser = array();
 		foreach ((array)$this->arrInfo['content'] as $intKey => $strValue) {
 
 			if(@is_file($this->strImagePath.$strValue)) {
@@ -383,7 +387,7 @@ class Imgbuilder {
 			}
 			$sMD5Text .= $strValue;
 			
-			$aUser[$intKey] = stripslashes(html_entity_decode($strValue, ENT_COMPAT | ENT_HTML401, 'UTF-8'));
+			$aUser[$intKey] = html_entity_decode($strValue, ENT_QUOTES, 'UTF-8');
 
 		}
 
@@ -546,7 +550,10 @@ class Imgbuilder {
 					if ($aSet['x_dynamic'] != $dval['index']) {
 
 						// user input or content defined in set
-						if ($dval['user'] == 1) {
+						if (
+							$dval['user'] == 1 &&
+							isset($aUser[$dval['index']])
+						) {
 							$strContent = $aUser[$dval['index']];
 						} else {
 							$strContent = $dval['text'];
@@ -693,23 +700,23 @@ class Imgbuilder {
 						$rImgCopy = $this->imageflip($rImgCopy, $dval['flip']);
 					}
 
-					// bottom left
-					if($dval['from'] == 2) {
-						$dval['y'] = $iImageHeight - $iCopyHeight - $dval['y'];
-					// top right
-					} elseif($dval['from'] == 3) {
-						$dval['x'] = $iImageWidth - $iCopyWidth - $dval['x'];
-					// bottom right
-					} elseif($dval['from'] == 4) {
-						$dval['y'] = $iImageHeight - $iCopyHeight - $dval['y'];
-						$dval['x'] = $iImageWidth - $iCopyWidth - $dval['x'];
-					}
-
 					/*
 					 * resize image
 					 */
 					if($dval['resize'] == '1' || $dval['resize'] == '-1') {
 
+						// bottom left
+						if($dval['from'] == 2) {
+							$dval['y'] = $iImageHeight - $iCopyHeight - $dval['y'];
+						// top right
+						} elseif($dval['from'] == 3) {
+							$dval['x'] = $iImageWidth - $iCopyWidth - $dval['x'];
+						// bottom right
+						} elseif($dval['from'] == 4) {
+							$dval['y'] = $iImageHeight - $iCopyHeight - $dval['y'];
+							$dval['x'] = $iImageWidth - $iCopyWidth - $dval['x'];
+						}
+						
 						$arrDimensions = $this->calcImageDimensions($dval);
 						$iResizeWidth = $arrDimensions['w'];
 						$iResizeHeight = $arrDimensions['h'];
@@ -751,7 +758,41 @@ class Imgbuilder {
 
 					} else {
 
-						imagecopy($rImg, $rImgCopy, $dval['x'], $dval['y'], 0, 0, $iCopyWidth, $iCopyHeight);
+						$iCopyX = 0;
+						$iCopyY = 0;
+						
+						if(
+							isset($dval['w']) &&
+							$dval['w'] > 0
+						) {
+							if($dval['align'] == 'R') {
+								$iCopyX = $iCopyWidth - $dval['w'];
+							}
+							
+							$iCopyWidth = $dval['w'];
+							
+						}
+						
+						if(
+							isset($dval['h']) &&
+							$dval['h'] > 0
+						) {
+							$iCopyHeight = $dval['h'];
+						}
+
+						// bottom left
+						if($dval['from'] == 2) {
+							$dval['y'] = $iImageHeight - $iCopyHeight - $dval['y'];
+						// top right
+						} elseif($dval['from'] == 3) {
+							$dval['x'] = $iImageWidth - $iCopyWidth - $dval['x'];
+						// bottom right
+						} elseif($dval['from'] == 4) {
+							$dval['y'] = $iImageHeight - $iCopyHeight - $dval['y'];
+							$dval['x'] = $iImageWidth - $iCopyWidth - $dval['x'];
+						}
+
+						imagecopy($rImg, $rImgCopy, $dval['x'], $dval['y'], $iCopyX, $iCopyY, $iCopyWidth, $iCopyHeight);
 
 					}
 
@@ -866,11 +907,9 @@ class Imgbuilder {
 					}		
 					break;
 			}
-			// set rights
-			if($bolSave) {
-				@chmod($strTargetPath, $system_data['chmod_mode_file']);	
-			}
+
 			imagedestroy($rImg);
+
 		}
 
 		if($bolReturn) {
