@@ -123,6 +123,7 @@ class Imgbuilder {
 			$c=0;
 			$intRow=0;
 			$bolLastLine = 0;
+			$bolNewline = 0;
 			$arrLines = array();
 			while(isset($arrWidth[$c])) {
 
