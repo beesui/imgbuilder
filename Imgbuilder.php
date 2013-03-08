@@ -101,7 +101,8 @@ class Imgbuilder {
 
 		$intCheck = 0; 
 		$intTotal = 0;
-
+		$iFactor = 2;
+		
 		if($arrBox[2] > $intWidth) {
 			$arrWidth = array();
 			$strText = preg_replace("/\r\n|\n|\r/", "\n", $strText);
@@ -109,8 +110,8 @@ class Imgbuilder {
 			foreach((array)$arrLines as $strLine) {
 				$arrText = explode(" ",$strLine);
 				foreach($arrText as $k=>$v) {
-					$arrBox = @imagettfbbox($intFont, 0, $strFontPath, $v);
-					$arrWidth[] = array($v, ($arrBox[2]-$arrBox[0]));
+					$arrBox = @imagettfbbox($intFont*$iFactor, 0, $strFontPath, $v);
+					$arrWidth[] = array($v, round(($arrBox[2]-$arrBox[0])/$iFactor));
 					$intTotal++;
 				}
 				$arrWidth[] = array("\n",0);
