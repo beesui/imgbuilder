@@ -146,7 +146,7 @@ class Imgbuilder {
 					$arrRows[$intRow][] = $arrWidth[$c][0];
 					$intRowWidth += $arrWidth[$c][1]+$intBoxSpace;
 					$c++;
-				} while($arrWidth[$c][1] > 0 && ($intRowWidth+$arrWidth[$c][1]) <= $intWidth);
+				} while(isset($arrWidth[$c]) && $arrWidth[$c][1] > 0 && ($intRowWidth+$arrWidth[$c][1]) <= $intWidth);
 				if($bolNewline) {
 					$bolNewline = 0;
 					$intRow++;
